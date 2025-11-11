@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Mesh Companion Icon</title>
+  <desc id="desc">Stylized mesh network node on a twilight gradient background.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b1a2b" />
+      <stop offset="55%" stop-color="#12365f" />
+      <stop offset="100%" stop-color="#1c4a7c" />
+    </linearGradient>
+    <linearGradient id="pulse" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f4d492" />
+      <stop offset="100%" stop-color="#ff8f66" />
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect fill="url(#bg)" rx="64" ry="64" width="512" height="512" />
+  <g fill="none" stroke="#f4d492" stroke-width="10" opacity="0.45">
+    <path d="M64 192c64-64 128-96 192-96s128 32 192 96" />
+    <path d="M96 352c64-48 128-72 192-72s128 24 192 72" />
+    <path d="M160 448c48-32 96-48 144-48s96 16 144 48" />
+  </g>
+  <g filter="url(#glow)">
+    <circle cx="256" cy="208" r="88" fill="url(#pulse)" />
+    <g stroke="#0b1a2b" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <circle cx="256" cy="208" r="52" />
+      <path d="M256 120v36" />
+      <path d="M256 260v72" />
+      <path d="M188 208h-48" />
+      <path d="M372 208h-48" />
+    </g>
+    <circle cx="256" cy="316" r="32" fill="#f4d492" stroke="#0b1a2b" stroke-width="12" />
+  </g>
+</svg>

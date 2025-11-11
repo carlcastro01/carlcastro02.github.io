@@ -1,0 +1,16 @@
+{
+  "name": "Mesh Companion",
+  "short_name": "Mesh",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b1a2b",
+  "theme_color": "#0b1a2b",
+  "description": "PWA interface for Meshtastic Heltec Wireless Tracker v1.1",
+  "icons": [
+    {
+      "src": "/pwa-icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ]
+}
