@@ -1,10 +1,12 @@
 import { type FunctionComponent } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import { useMessaging } from '../contexts/MessagingContext';
+import { useWebRtc } from '../contexts/WebRtcContext';
 import { storage } from '../utils/storage';
 
 export const MessageComposer: FunctionComponent = () => {
   const { channelId, setChannel, send } = useMessaging();
+  const { connected: directLinkActive } = useWebRtc();
   const [body, setBody] = useState('');
   const [priority, setPriority] = useState<'normal' | 'priority' | 'sos'>('normal');
   const [draftLoaded, setDraftLoaded] = useState(false);
@@ -33,7 +35,12 @@ export const MessageComposer: FunctionComponent = () => {
   return (
     <form class="card space-y-5" onSubmit={submit}>
       <header class="flex flex-wrap items-center justify-between gap-3">
-        <h2 class="text-lg font-semibold text-neutral-white">Compose</h2>
+        <div>
+          <h2 class="text-lg font-semibold text-neutral-white">Compose</h2>
+          {directLinkActive && (
+            <p class="text-xs uppercase tracking-wide text-status-green">Direct peer channel available</p>
+          )}
+        </div>
         <div class="flex items-center gap-2">
           <label class="text-xs uppercase text-neutral-white/50" htmlFor="channel">Channel</label>
           <select id="channel" class="input w-36" value={channelId} onChange={(event) => setChannel((event.target as HTMLSelectElement).value)}>

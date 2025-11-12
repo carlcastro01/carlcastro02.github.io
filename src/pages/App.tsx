@@ -7,6 +7,7 @@ import { MapPanel } from '../components/MapPanel';
 import { MessageComposer } from '../components/MessageComposer';
 import { MessageList } from '../components/MessageList';
 import { SosPanel } from '../components/SosPanel';
+import { WebRtcPanel } from '../components/WebRtcPanel';
 
 export const App: FunctionComponent<RouteComponentProps> = () => {
   return (
@@ -21,6 +22,7 @@ export const App: FunctionComponent<RouteComponentProps> = () => {
             <a href="#connection" class="hover:text-accent-gold">Connection</a>
             <a href="#messages" class="hover:text-accent-gold">Messages</a>
             <a href="#alerts" class="hover:text-accent-gold">Alerts</a>
+            <a href="#direct-peer" class="hover:text-accent-gold">Direct link</a>
             <a href="#location" class="hover:text-accent-gold">Location</a>
             <a href="#config" class="hover:text-accent-gold">Configuration</a>
           </nav>
@@ -31,6 +33,7 @@ export const App: FunctionComponent<RouteComponentProps> = () => {
           <div class="space-y-6 lg:col-span-2">
             <ConnectionPanel />
             <MessageComposer />
+            <WebRtcPanel />
           </div>
           <div class="space-y-6">
             <BatteryPanel />
