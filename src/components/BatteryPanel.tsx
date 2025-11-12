@@ -25,18 +25,32 @@ export const BatteryPanel: FunctionComponent = () => {
   }, [battery?.percentage]);
 
   return (
-    <section class={`card space-y-4 ${alert ? 'ring-2 ring-coral' : ''}`}>
+    <section class={`card space-y-5 ${alert ? 'ring-2 ring-status-red/80 shadow-status-red/40' : ''}`} aria-live="polite">
       <header class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-sand">Battery</h2>
-        {battery?.isCharging && <span class="rounded bg-sky/20 px-2 text-xs text-sky">Charging</span>}
+        <h2 class="text-lg font-semibold text-neutral-white">Power</h2>
+        {battery?.isCharging && (
+          <span class="rounded-full bg-secondary-blue/30 px-3 py-1 text-xs font-medium text-accent-gold">Charging</span>
+        )}
       </header>
-      <div class="flex items-baseline gap-4 text-3xl font-bold">
-        <span>{formatBattery(battery?.percentage)}</span>
-        <span class="text-base font-medium text-sand/60">{formatVoltage(battery?.voltage)}</span>
+      <div class="space-y-3">
+        <div class="flex items-end gap-4 text-4xl font-semibold">
+          <span>{formatBattery(battery?.percentage)}</span>
+          <span class="text-base font-medium text-neutral-white/60">{formatVoltage(battery?.voltage)}</span>
+        </div>
+        <div class="h-3 w-full overflow-hidden rounded-full bg-primary-darker/80">
+          <div
+            class={`h-full transition-all ${alert ? 'bg-status-red' : 'bg-accent-gold'}`}
+            style={{ width: battery?.percentage !== undefined ? `${battery.percentage}%` : '8%' }}
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={battery?.percentage ?? 0}
+          />
+        </div>
       </div>
       {alert && (
-        <div class="rounded-lg bg-coral/20 p-3 text-sm text-sand">
-          Critical battery level. Consider enabling power saving settings or sending an SOS update.
+        <div class="rounded-2xl border border-status-red/60 bg-status-red/10 p-4 text-sm text-neutral-white">
+          Critical battery level. Reduce radio duty cycle or broadcast an assistance update.
         </div>
       )}
     </section>

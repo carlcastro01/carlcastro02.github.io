@@ -1,10 +1,26 @@
 import { type FunctionComponent } from 'preact';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import L from 'leaflet';
 import { useMesh } from '../contexts/MeshContext';
 import { storage, type Breadcrumb } from '../utils/storage';
 import { useSettings } from '../contexts/SettingsContext';
 
 const EARTH_RADIUS_KM = 6371;
+
+const TILE_SOURCES = {
+  offline: {
+    url: '/offline-tiles/{z}/{x}/{y}.png',
+    attribution: 'Offline tiles'
+  },
+  osm: {
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; OpenStreetMap contributors'
+  },
+  stamen: {
+    url: 'https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg',
+    attribution: '&copy; Stamen Design'
+  }
+} as const;
 
 const toRadians = (degrees: number) => degrees * Math.PI / 180;
 
@@ -28,68 +44,97 @@ const bearingBetween = (from: Breadcrumb, to: Breadcrumb) => {
   return (bearing + 360) % 360;
 };
 
-const drawBreadcrumbs = (canvas: HTMLCanvasElement, breadcrumbs: Breadcrumb[]) => {
-  const context = canvas.getContext('2d');
-  if (!context) return;
-  context.clearRect(0, 0, canvas.width, canvas.height);
-  if (breadcrumbs.length === 0) return;
-
-  const lats = breadcrumbs.map((b) => b.latitude);
-  const lons = breadcrumbs.map((b) => b.longitude);
-  const minLat = Math.min(...lats);
-  const maxLat = Math.max(...lats);
-  const minLon = Math.min(...lons);
-  const maxLon = Math.max(...lons);
-  const padding = 20;
-
-  breadcrumbs.forEach((breadcrumb, index) => {
-    const x = padding + ((breadcrumb.longitude - minLon) / (maxLon - minLon || 1)) * (canvas.width - padding * 2);
-    const y = padding + ((maxLat - breadcrumb.latitude) / (maxLat - minLat || 1)) * (canvas.height - padding * 2);
-    context.fillStyle = index === breadcrumbs.length - 1 ? '#ff6f61' : '#57c7ff';
-    context.beginPath();
-    context.arc(x, y, 5, 0, Math.PI * 2);
-    context.fill();
-
-    if (index > 0) {
-      const previous = breadcrumbs[index - 1];
-      const prevX = padding + ((previous.longitude - minLon) / (maxLon - minLon || 1)) * (canvas.width - padding * 2);
-      const prevY = padding + ((maxLat - previous.latitude) / (maxLat - minLat || 1)) * (canvas.height - padding * 2);
-      context.strokeStyle = '#57c7ff';
-      context.lineWidth = 2;
-      context.beginPath();
-      context.moveTo(prevX, prevY);
-      context.lineTo(x, y);
-      context.stroke();
-    }
-  });
-};
-
 export const MapPanel: FunctionComponent = () => {
   const mesh = useMesh();
-  const { showOfflineTiles } = useSettings();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { showOfflineTiles, mapTileSource } = useSettings();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map>();
+  const tileLayerRef = useRef<L.TileLayer>();
+  const breadcrumbLayerRef = useRef<L.LayerGroup>();
   const [breadcrumbs, setBreadcrumbs] = useState<Breadcrumb[]>([]);
+  const [attribution, setAttribution] = useState('');
 
   useEffect(() => {
-    storage.listBreadcrumbs().then(setBreadcrumbs);
+    storage
+      .listBreadcrumbs()
+      .then((items) => items.filter((item) => item.latitude !== undefined && item.longitude !== undefined))
+      .then(setBreadcrumbs);
   }, []);
 
   useEffect(() => {
-    if (!mesh.position?.latitude || !mesh.position?.longitude) return;
-    const breadcrumb: Breadcrumb = {
-      latitude: mesh.position.latitude,
-      longitude: mesh.position.longitude,
-      timestamp: mesh.position.timestamp ?? Date.now()
-    };
-    storage.addBreadcrumb(breadcrumb).then((persisted) => {
-      setBreadcrumbs((prev) => [...prev, persisted].slice(-500));
+    const container = containerRef.current;
+    if (!container || mapRef.current) return;
+    mapRef.current = L.map(container, {
+      zoomControl: false,
+      attributionControl: false,
+      preferCanvas: true,
+      minZoom: 2,
+      maxZoom: 18
     });
-  }, [mesh.position?.latitude, mesh.position?.longitude, mesh.position?.timestamp]);
+    mapRef.current.setView([0, 0], 2);
+    breadcrumbLayerRef.current = L.layerGroup().addTo(mapRef.current);
+  }, []);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    drawBreadcrumbs(canvas, breadcrumbs);
+    const map = mapRef.current;
+    if (!map) return;
+    const sourceKey = mapTileSource === 'offline' && !showOfflineTiles ? 'osm' : mapTileSource;
+    const source = TILE_SOURCES[sourceKey];
+    if (tileLayerRef.current) {
+      tileLayerRef.current.remove();
+    }
+    tileLayerRef.current = L.tileLayer(source.url, {
+      detectRetina: true,
+      keepBuffer: 8,
+      className: 'rounded-3xl overflow-hidden',
+      attribution: source.attribution
+    }).addTo(map);
+    setAttribution(source.attribution);
+  }, [mapTileSource, showOfflineTiles]);
+
+  useEffect(() => {
+    const { latitude, longitude } = mesh.position ?? {};
+    if (latitude === undefined || longitude === undefined) return;
+    const last = breadcrumbs[breadcrumbs.length - 1];
+    if (last && Math.abs(last.latitude - latitude) < 1e-6 && Math.abs(last.longitude - longitude) < 1e-6) return;
+    const breadcrumb: Breadcrumb = {
+      latitude,
+      longitude,
+      timestamp: mesh.position?.timestamp ?? Date.now()
+    };
+    storage.addBreadcrumb(breadcrumb).then((persisted) => {
+      setBreadcrumbs((prev) => [...prev.slice(-499), persisted]);
+    });
+  }, [breadcrumbs, mesh.position?.latitude, mesh.position?.longitude, mesh.position?.timestamp]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    const layer = breadcrumbLayerRef.current;
+    if (!map || !layer) return;
+    layer.clearLayers();
+    breadcrumbs.forEach((breadcrumb, index) => {
+      const marker = L.circleMarker([breadcrumb.latitude, breadcrumb.longitude], {
+        radius: index === breadcrumbs.length - 1 ? 8 : 6,
+        weight: 2,
+        color: index === breadcrumbs.length - 1 ? '#ECC440' : '#1D03A6',
+        fillColor: index === breadcrumbs.length - 1 ? '#ECC440' : '#1D03A6',
+        fillOpacity: 0.8
+      }).bindTooltip(new Date(breadcrumb.timestamp).toLocaleString(), {
+        direction: 'top'
+      });
+      marker.addTo(layer);
+    });
+    if (breadcrumbs.length > 1) {
+      const coordinates = breadcrumbs.map((item) => [item.latitude, item.longitude]) as [number, number][];
+      L.polyline(coordinates, {
+        color: '#1D03A6',
+        opacity: 0.6,
+        weight: 3
+      }).addTo(layer);
+    }
+    if (breadcrumbs.length > 0) {
+      map.fitBounds(layer.getBounds().pad(0.25), { animate: true });
+    }
   }, [breadcrumbs]);
 
   const stats = useMemo(() => {
@@ -102,24 +147,47 @@ export const MapPanel: FunctionComponent = () => {
     };
   }, [breadcrumbs]);
 
+  const latest = breadcrumbs[breadcrumbs.length - 1];
+
   return (
-    <section class="card space-y-4">
+    <section class="card space-y-5" id="location">
       <header class="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 class="text-lg font-semibold text-sand">Location</h2>
-          <p class="text-xs text-sand/60">Offline breadcrumbs with distance &amp; bearing utilities.</p>
+          <h2 class="text-lg font-semibold text-neutral-white">Location</h2>
+          <p class="text-xs text-neutral-white/60">Offline map with breadcrumb trail, distance &amp; bearing tools.</p>
         </div>
-        {showOfflineTiles && <span class="rounded bg-sky/20 px-2 text-xs text-sky">Offline tiles enabled</span>}
+        {showOfflineTiles && mapTileSource === 'offline' && (
+          <span class="rounded-full bg-secondary-blue/30 px-3 py-1 text-xs font-medium text-accent-gold">Offline tiles enabled</span>
+        )}
       </header>
-      <canvas ref={canvasRef} class="h-64 w-full rounded-xl bg-midnight/80" width={640} height={320} role="img" aria-label="Breadcrumb trail map" />
-      {stats && (
-        <dl class="grid grid-cols-2 gap-3 text-sm text-sand/70">
+      <div ref={containerRef} class="h-72 w-full overflow-hidden rounded-3xl border border-secondary-blue/40" role="application" aria-label="Breadcrumb trail map" />
+      {attribution && (
+        <p class="text-[10px] uppercase tracking-wide text-neutral-white/40">{attribution}</p>
+      )}
+      {latest && (
+        <dl class="grid gap-3 text-sm text-neutral-white/70 sm:grid-cols-3">
           <div>
-            <dt class="uppercase tracking-wide text-xs">Distance</dt>
+            <dt class="uppercase tracking-wide text-xs">Latitude</dt>
+            <dd>{latest.latitude.toFixed(6)}</dd>
+          </div>
+          <div>
+            <dt class="uppercase tracking-wide text-xs">Longitude</dt>
+            <dd>{latest.longitude.toFixed(6)}</dd>
+          </div>
+          <div>
+            <dt class="uppercase tracking-wide text-xs">Last Heard</dt>
+            <dd>{new Date(latest.timestamp).toLocaleString()}</dd>
+          </div>
+        </dl>
+      )}
+      {stats && (
+        <dl class="grid gap-3 text-sm text-neutral-white/70 sm:grid-cols-2">
+          <div>
+            <dt class="uppercase tracking-wide text-xs">Distance Travelled</dt>
             <dd>{stats.distance.toFixed(2)} km</dd>
           </div>
           <div>
-            <dt class="uppercase tracking-wide text-xs">Bearing</dt>
+            <dt class="uppercase tracking-wide text-xs">Bearing to Last Point</dt>
             <dd>{stats.bearing.toFixed(0)}°</dd>
           </div>
         </dl>

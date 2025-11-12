@@ -2,31 +2,53 @@
 @tailwind components;
 @tailwind utilities;
 
+@import 'leaflet/dist/leaflet.css';
+
 :root {
   color-scheme: dark;
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 a {
-  color: theme('colors.sky');
+  color: theme('colors.accent-gold');
 }
 
 body {
-  @apply bg-midnight text-sand min-h-screen;
+  @apply min-h-screen bg-primary-darker text-neutral-white antialiased;
+}
+
+body.alert-flash {
+  animation: alert-flash 240ms steps(2, end) infinite;
+}
+
+@keyframes alert-flash {
+  0% {
+    background-color: rgba(236, 196, 64, 0.15);
+  }
+  50% {
+    background-color: rgba(255, 77, 109, 0.25);
+  }
+  100% {
+    background-color: rgba(236, 196, 64, 0.15);
+  }
 }
 
 .btn {
-  @apply inline-flex items-center justify-center rounded-lg border border-sky px-4 py-2 font-semibold transition;
+  @apply inline-flex items-center justify-center rounded-xl border border-secondary-blue/60 bg-transparent px-5 py-3 text-sm font-semibold uppercase tracking-wide text-neutral-white transition hover:border-accent-gold hover:text-accent-gold;
 }
 
 .btn-primary {
-  @apply bg-sky text-midnight hover:bg-coral hover:text-sand;
+  @apply bg-accent-gold text-primary-darker hover:bg-accent-gold/90 hover:text-primary-darker;
+}
+
+.btn-destructive {
+  @apply border-status-red/60 text-status-red hover:border-status-red hover:text-neutral-white hover:bg-status-red/20;
 }
 
 .card {
-  @apply rounded-2xl bg-ocean/40 p-4 backdrop-blur;
+  @apply rounded-3xl border border-secondary-blue/30 bg-primary-dark/80 p-5 shadow-lg shadow-primary-darker/50 backdrop-blur;
 }
 
 .input {
-  @apply w-full rounded-lg border border-ocean bg-midnight/80 px-3 py-2 text-sand focus:border-sky focus:outline-none;
+  @apply w-full rounded-xl border border-secondary-blue/40 bg-primary-darker/80 px-4 py-3 text-sm text-neutral-white placeholder-neutral-white/40 focus:border-accent-gold focus:outline-none focus:ring-2 focus:ring-accent-gold/30;
 }
