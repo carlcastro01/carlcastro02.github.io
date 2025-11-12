@@ -5,15 +5,18 @@ import { App } from './pages/App';
 import { MeshProvider } from './contexts/MeshContext';
 import { MessagingProvider } from './contexts/MessagingContext';
 import { SettingsProvider } from './contexts/SettingsContext';
+import { WebRtcProvider } from './contexts/WebRtcContext';
 import './index.css';
 
 const Main = () => (
   <SettingsProvider>
     <MeshProvider>
       <MessagingProvider>
-        <Router>
-          <App path="/" />
-        </Router>
+        <WebRtcProvider>
+          <Router>
+            <App path="/" />
+          </Router>
+        </WebRtcProvider>
       </MessagingProvider>
     </MeshProvider>
   </SettingsProvider>

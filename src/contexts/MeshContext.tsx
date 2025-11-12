@@ -43,7 +43,11 @@ export const MeshProvider: FunctionComponent<{ children: ComponentChildren }> = 
 
   const cleanupAdapter = useCallback(async () => {
     if (adapterRef.current) {
-      await adapterRef.current.disconnect();
+      try {
+        await adapterRef.current.disconnect();
+      } catch (error) {
+        console.warn('Failed to teardown adapter', error);
+      }
     }
     adapterRef.current = undefined;
     setConnected(false);
@@ -51,6 +55,7 @@ export const MeshProvider: FunctionComponent<{ children: ComponentChildren }> = 
     setDeviceInfo(undefined);
     setBattery(undefined);
     setPosition(undefined);
+    setConfig(undefined);
   }, []);
 
   const handlePacket = useEvent((packet: Uint8Array) => {
@@ -63,15 +68,21 @@ export const MeshProvider: FunctionComponent<{ children: ComponentChildren }> = 
     await cleanupAdapter();
     adapterRef.current = adapter;
     adapter.onPacket(handlePacket);
-    await adapter.connect();
-    setConnected(true);
-    setConnectionType(adapter.type);
-    setDeviceInfo(await adapter.getDeviceInfo());
-    if (adapter.getBatteryState) {
-      setBattery(await adapter.getBatteryState());
-    }
-    if (adapter.getPosition) {
-      setPosition(await adapter.getPosition());
+    try {
+      await adapter.connect();
+      setConnected(true);
+      setConnectionType(adapter.type);
+      setDeviceInfo(await adapter.getDeviceInfo());
+      if (adapter.getBatteryState) {
+        setBattery(await adapter.getBatteryState());
+      }
+      if (adapter.getPosition) {
+        setPosition(await adapter.getPosition());
+      }
+    } catch (error) {
+      console.error('Failed to connect with adapter', error);
+      await cleanupAdapter();
+      throw error;
     }
   }, [cleanupAdapter, handlePacket]);
 

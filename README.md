@@ -7,6 +7,7 @@ A Meshtastic-inspired Progressive Web App optimised for the Heltec Wireless Trac
 - 📡 **Multi-transport connections** — switch between Web Serial, Web Bluetooth, and Wi-Fi to reach Heltec Wireless Tracker v1.1 nodes.
 - 💬 **Rich messaging** — channel-aware messaging interface with IndexedDB offline storage, message priorities, and draft persistence.
 - 🚨 **Alerts workflow** — SOS & multi-pattern priority triggers with audible + visual cues, including remote activation and custom patterns.
+- 🔗 **Direct peer bridge** — browser-based WebRTC data channel with copy/paste offer & answer codes for resilient sideband messaging.
 - 🔋 **Device telemetry** — battery and firmware readouts plus periodic refresh.
 - 🗺️ **Location utilities** — Leaflet-powered offline breadcrumbs, distance/bearing calculator, and switchable map tile sources.
 - ⚙️ **Configuration parity** — edit core owner, channel, region, role, and advanced LoRa/Power JSON payloads mirroring meshtxt capabilities.
@@ -33,9 +34,10 @@ The development server is available on <http://localhost:5173>. For Web Serial/B
 2. **Prepare hardware access** — enable experimental Web Platform features in Chrome/Edge if prompted; connect the Heltec Wireless Tracker v1.1 via USB, Bluetooth, or Wi-Fi.
 3. **Start the client** — execute `npm run dev` and visit `http://localhost:5173`. Use the Connection panel to pick Web Serial, Web Bluetooth, or Wi-Fi/TCP.
 4. **Configure the device** — open the Configuration section to set owner/channel/role fields and persist preferred map tile source or offline tile usage.
-5. **Test messaging and alerts** — send a text from the Compose panel, then trigger each emergency pattern (SOS, Medical, Lost, Disaster, Custom). Remote alerts are replayed automatically when another node transmits an `ALERT` payload.
-6. **Validate mapping** — confirm GPS breadcrumbs appear on the Leaflet map. Drop offline tiles under `public/offline-tiles/{z}/{x}/{y}.png` for fully disconnected deployments.
-7. **Build for production** — run `npm run build` and deploy the generated `dist/` folder to a static host that serves HTTPS so Web Serial/Bluetooth continue to function.
+5. **Pair a direct link** — open the Direct Peer Link card, press “Generate shareable offer” and exchange the code with another responder. Use the returned answer to complete the handshake and test the peer-to-peer pad.
+6. **Test messaging and alerts** — send a text from the Compose panel, then trigger each emergency pattern (SOS, Medical, Lost, Disaster, Custom). Remote alerts are replayed automatically when another node transmits an `ALERT` payload.
+7. **Validate mapping** — confirm GPS breadcrumbs appear on the Leaflet map. Drop offline tiles under `public/offline-tiles/{z}/{x}/{y}.png` for fully disconnected deployments.
+8. **Build for production** — run `npm run build` and deploy the generated `dist/` folder to a static host that serves HTTPS so Web Serial/Bluetooth continue to function.
 
 ## Production build
 
