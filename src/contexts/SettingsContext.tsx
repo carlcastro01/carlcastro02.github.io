@@ -2,11 +2,12 @@ import { createContext, type ComponentChildren, type FunctionComponent } from 'p
 import { useCallback, useContext, useEffect, useMemo, useState } from 'preact/hooks';
 
 type Theme = 'system' | 'dark' | 'light';
+type TileSource = 'offline' | 'osm' | 'stamen';
 
 interface SettingsState {
   theme: Theme;
   showOfflineTiles: boolean;
-  mapTileSource: string;
+  mapTileSource: TileSource;
 }
 
 const DEFAULT_SETTINGS: SettingsState = {

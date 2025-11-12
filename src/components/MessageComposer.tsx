@@ -31,12 +31,12 @@ export const MessageComposer: FunctionComponent = () => {
   };
 
   return (
-    <form class="card space-y-4" onSubmit={submit}>
+    <form class="card space-y-5" onSubmit={submit}>
       <header class="flex flex-wrap items-center justify-between gap-3">
-        <h2 class="text-lg font-semibold text-sand">Compose</h2>
+        <h2 class="text-lg font-semibold text-neutral-white">Compose</h2>
         <div class="flex items-center gap-2">
-          <label class="text-xs uppercase text-sand/50" htmlFor="channel">Channel</label>
-          <select id="channel" class="input w-32" value={channelId} onChange={(event) => setChannel((event.target as HTMLSelectElement).value)}>
+          <label class="text-xs uppercase text-neutral-white/50" htmlFor="channel">Channel</label>
+          <select id="channel" class="input w-36" value={channelId} onChange={(event) => setChannel((event.target as HTMLSelectElement).value)}>
             <option value="primary">Primary</option>
             <option value="team">Team</option>
             <option value="emergency">Emergency</option>
@@ -46,14 +46,14 @@ export const MessageComposer: FunctionComponent = () => {
       <textarea class="input min-h-[120px]" placeholder="Type a message" value={body} onInput={(event) => setBody((event.target as HTMLTextAreaElement).value)} />
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2">
-          <label class="text-xs uppercase text-sand/50">Priority</label>
+          <label class="text-xs uppercase text-neutral-white/50">Priority</label>
           <select class="input" value={priority} onChange={(event) => setPriority((event.target as HTMLSelectElement).value as typeof priority)}>
             <option value="normal">Normal</option>
             <option value="priority">Priority</option>
             <option value="sos">SOS</option>
           </select>
         </div>
-        <button class="btn-primary" type="submit">Send</button>
+        <button class="btn btn-primary" type="submit">Send</button>
       </div>
     </form>
   );

@@ -1,14 +1,14 @@
-# Mesh Companion PWA
+# ConnectTa Emergency Mesh Client
 
-A Meshtastic-inspired Progressive Web App optimised for the Heltec Wireless Tracker v1.1. The project adapts core meshtxt UI concepts to a responsive layout, integrates Meshtastic.js transports (Web Serial, Web Bluetooth, Wi-Fi/TCP), and persists messages and breadcrumb telemetry for offline-first operation.
+A Meshtastic-inspired Progressive Web App optimised for the Heltec Wireless Tracker v1.1. The project adapts core meshtxt UI concepts to a responsive layout, integrates Meshtastic.js transports (Web Serial, Web Bluetooth, Wi-Fi/TCP), and persists messages and breadcrumb telemetry for offline-first operation. The visual system respects the mandatory ConnectTa palette to keep the interface legible outdoors during emergency response.
 
 ## Features
 
 - 📡 **Multi-transport connections** — switch between Web Serial, Web Bluetooth, and Wi-Fi to reach Heltec Wireless Tracker v1.1 nodes.
 - 💬 **Rich messaging** — channel-aware messaging interface with IndexedDB offline storage, message priorities, and draft persistence.
-- 🚨 **Alerts workflow** — SOS & priority triggers with audible + visual cues, including remote SOS detection.
+- 🚨 **Alerts workflow** — SOS & multi-pattern priority triggers with audible + visual cues, including remote activation and custom patterns.
 - 🔋 **Device telemetry** — battery and firmware readouts plus periodic refresh.
-- 🗺️ **Location utilities** — offline breadcrumb visualisation, distance/bearing calculator, and offline tile toggle.
+- 🗺️ **Location utilities** — Leaflet-powered offline breadcrumbs, distance/bearing calculator, and switchable map tile sources.
 - ⚙️ **Configuration parity** — edit core owner, channel, region, role, and advanced LoRa/Power JSON payloads mirroring meshtxt capabilities.
 - 📱 **PWA ready** — service worker + manifest for offline installs, responsive palette-aligned UI.
 
@@ -26,6 +26,16 @@ npm run dev
 ```
 
 The development server is available on <http://localhost:5173>. For Web Serial/Bluetooth you must serve over HTTPS in production (Vite dev uses localhost exception).
+
+## Step-by-step setup procedure
+
+1. **Install dependencies** — run `npm install` to fetch Meshtastic.js, Leaflet, idb, and the Preact toolchain.
+2. **Prepare hardware access** — enable experimental Web Platform features in Chrome/Edge if prompted; connect the Heltec Wireless Tracker v1.1 via USB, Bluetooth, or Wi-Fi.
+3. **Start the client** — execute `npm run dev` and visit `http://localhost:5173`. Use the Connection panel to pick Web Serial, Web Bluetooth, or Wi-Fi/TCP.
+4. **Configure the device** — open the Configuration section to set owner/channel/role fields and persist preferred map tile source or offline tile usage.
+5. **Test messaging and alerts** — send a text from the Compose panel, then trigger each emergency pattern (SOS, Medical, Lost, Disaster, Custom). Remote alerts are replayed automatically when another node transmits an `ALERT` payload.
+6. **Validate mapping** — confirm GPS breadcrumbs appear on the Leaflet map. Drop offline tiles under `public/offline-tiles/{z}/{x}/{y}.png` for fully disconnected deployments.
+7. **Build for production** — run `npm run build` and deploy the generated `dist/` folder to a static host that serves HTTPS so Web Serial/Bluetooth continue to function.
 
 ## Production build
 
@@ -69,6 +79,18 @@ Transport adapters lazily import Meshtastic.js classes to keep bundle size low w
 - `TcpTransport` for Wi-Fi/TCP links (default port 4403)
 
 The adapters expose battery, position, configuration, and packet piping to the rest of the UI. Adjust transport class names if future Meshtastic.js releases rename them.
+
+## Design system
+
+| Token | Hex | Usage |
+| --- | --- | --- |
+| `--primary-dark` | `#0C012D` | Cards, panels, primary surfaces |
+| `--primary-darker` | `#030015` | App background, modals |
+| `--accent-gold` | `#ECC440` | Alerts, primary buttons, key accents |
+| `--secondary-blue` | `#1D03A6` | Secondary emphasis, dividers |
+| `--neutral-white` | `#FFFFFF` | Text/icons for high contrast |
+
+All buttons maintain large touch targets and high-contrast states to ensure outdoor readability and gloved usage.
 
 ## Deployment notes
 

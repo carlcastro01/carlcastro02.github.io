@@ -1,10 +1,10 @@
 {
-  "name": "Mesh Companion",
-  "short_name": "Mesh",
+  "name": "ConnectTa Emergency Mesh",
+  "short_name": "ConnectTa",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0b1a2b",
-  "theme_color": "#0b1a2b",
+  "background_color": "#030015",
+  "theme_color": "#0C012D",
   "description": "PWA interface for Meshtastic Heltec Wireless Tracker v1.1",
   "icons": [
     {

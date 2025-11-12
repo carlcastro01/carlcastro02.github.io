@@ -11,9 +11,9 @@ export default defineConfig({
       manifest: {
         name: 'Mesh PWA',
         short_name: 'MeshPWA',
-        description: 'Meshtastic companion Progressive Web App',
-        theme_color: '#0b1a2b',
-        background_color: '#0b1a2b',
+        description: 'ConnectTa emergency-ready Meshtastic companion',
+        theme_color: '#0C012D',
+        background_color: '#030015',
         display: 'standalone',
         orientation: 'portrait-primary',
         start_url: '/',

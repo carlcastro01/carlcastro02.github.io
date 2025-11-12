@@ -6,11 +6,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        midnight: '#0b1a2b',
-        ocean: '#1f4e79',
-        sky: '#57c7ff',
-        sand: '#f3f1e6',
-        coral: '#ff6f61'
+        'primary-dark': '#0C012D',
+        'primary-darker': '#030015',
+        'accent-gold': '#ECC440',
+        'neutral-white': '#FFFFFF',
+        'secondary-blue': '#1D03A6',
+        'status-red': '#FF4D6D',
+        'status-green': '#2EE6A8'
       }
     }
   },

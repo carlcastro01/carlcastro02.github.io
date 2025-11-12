@@ -20,33 +20,58 @@ export const ConnectionPanel: FunctionComponent = () => {
   };
 
   return (
-    <section class="card space-y-4">
-      <header class="flex items-center justify-between">
+    <section class="card space-y-5" id="connection-panel">
+      <header class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 class="text-lg font-semibold text-sand">Connection</h2>
-          <p class="text-sm text-sand/60">Link to Heltec Wireless Tracker v1.1 using any supported transport.</p>
+          <h2 class="text-lg font-semibold text-neutral-white">Connection</h2>
+          <p class="text-sm text-neutral-white/60">Link to Heltec Wireless Tracker v1.1 using any supported transport.</p>
         </div>
         {mesh.connected && (
-          <button class="btn" onClick={() => mesh.disconnect()}>Disconnect</button>
+          <button class="btn btn-destructive" onClick={() => mesh.disconnect()}>Disconnect</button>
         )}
       </header>
       <div class="grid gap-3 md:grid-cols-3">
-        <button class={`btn ${loading === 'serial' ? 'opacity-50' : ''}`} disabled={loading === 'serial'} onClick={() => connect('serial')}>
+        <button
+          class={`btn ${loading === 'serial' ? 'opacity-60' : ''}`}
+          disabled={loading === 'serial'}
+          onClick={() => connect('serial')}
+        >
           {loading === 'serial' ? 'Connecting…' : 'Web Serial'}
         </button>
-        <button class={`btn ${loading === 'bluetooth' ? 'opacity-50' : ''}`} disabled={loading === 'bluetooth'} onClick={() => connect('bluetooth')}>
+        <button
+          class={`btn ${loading === 'bluetooth' ? 'opacity-60' : ''}`}
+          disabled={loading === 'bluetooth'}
+          onClick={() => connect('bluetooth')}
+        >
           {loading === 'bluetooth' ? 'Connecting…' : 'Web Bluetooth'}
         </button>
-        <div class="flex items-center gap-2">
-          <input class="input" placeholder="192.168.4.1" value={wifiHost} onInput={(event) => setWifiHost((event.target as HTMLInputElement).value)} />
-          <input class="input w-24" type="number" value={wifiPort} onInput={(event) => setWifiPort(Number((event.target as HTMLInputElement).value))} />
-          <button class={`btn ${loading === 'wifi' ? 'opacity-50' : ''}`} disabled={!wifiHost || loading === 'wifi'} onClick={() => connect('wifi')}>
-            {loading === 'wifi' ? 'Connecting…' : 'Wi-Fi'}
+        <div class="flex flex-col gap-2">
+          <div class="flex gap-2">
+            <input
+              class="input"
+              placeholder="192.168.4.1"
+              value={wifiHost}
+              onInput={(event) => setWifiHost((event.target as HTMLInputElement).value)}
+            />
+            <input
+              class="input w-24"
+              type="number"
+              value={wifiPort}
+              min={1}
+              onInput={(event) => setWifiPort(Number((event.target as HTMLInputElement).value))}
+            />
+          </div>
+          <button
+            class={`btn ${loading === 'wifi' ? 'opacity-60' : ''}`}
+            disabled={!wifiHost || loading === 'wifi'}
+            onClick={() => connect('wifi')}
+          >
+            {loading === 'wifi' ? 'Connecting…' : 'Wi-Fi / TCP'}
           </button>
         </div>
       </div>
       {mesh.deviceInfo && (
-        <dl class="grid grid-cols-2 gap-2 text-sm text-sand/70">
+        <dl class="grid grid-cols-2 gap-2 text-sm text-neutral-white/70">
           <div>
             <dt class="uppercase tracking-wide text-xs">Device</dt>
             <dd>{mesh.deviceInfo.longName ?? mesh.deviceInfo.shortName ?? mesh.deviceInfo.id}</dd>
